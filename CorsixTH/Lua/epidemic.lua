@@ -575,9 +575,6 @@ function Epidemic:determineNextVaccinationCandidate()
       for i, infected_patient in ipairs(self.infected_patients) do
         if infected_patient.marked_for_vaccination and
           not violates_candidate_criteria(infected_patient) then
-          -- Give selected patient the cursor with the arrow
-          infected_patient:setMood("epidemy2","deactivate")
-          infected_patient:setMood("epidemy3","activate")
           self.vaccination_candidate = infected_patient
           -- We've found one - no need to search for another
           break
@@ -622,6 +619,10 @@ function Epidemic:createVaccinationActions(patient,nurse)
     patient.reserved_for = nil
     -- Otherwise send the nurse to vaccinate
   else
+   -- Give selected patient the cursor with the arrow once they are next 
+   -- in line for vaccination i.e. call assigned
+   self.vaccination_candidate:setMood("epidemy2","deactivate")
+   self.vaccination_candidate:setMood("epidemy3","activate")  
     local vaccination_fee = self.config.gbv.VacCost or 50
     nurse:setNextAction({name="walk", x=x, y=y,
                         must_happen=true,
