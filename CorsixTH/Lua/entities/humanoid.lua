@@ -125,6 +125,7 @@ anims("Nurse",                     1206, 1208, 1650, 1652, 3264, 3266,   nil,   
 anims("Handyman",                  1858, 1860, 1866, 1868, 3286, 3288,   nil,   nil, 3518,  3520)
 anims("Receptionist",              3668, 3670, 3676, 3678) -- Could do with door animations
 anims("VIP",                        266,  268,  274,  276)
+anims("Inspector",                  266,  268,  274,  276)
 anims("Grim Reaper",                994,  996, 1002, 1004)
 
 --  | Die Animations                 |
