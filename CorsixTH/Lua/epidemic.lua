@@ -193,6 +193,20 @@ function Epidemic:checkIfReadyToReveal()
   end
 end
 
+function Epidemic:announceStartOfEpidemic()
+local announcements = {"EPID001.wav", "EPID002.wav", "EPID003.wav", "EPID004.wav"}
+  if announcements and self.hospital:isPlayerHospital() then
+    self.world.ui:playAnnouncement(announcements[math.random(1, #announcements)])
+  end
+end
+
+function Epidemic:announceEndOfEpidemic()
+local announcements = {"EPID005.wav", "EPID006.wav", "EPID007.wav", "EPID008.wav"}
+  if announcements and self.hospital:isPlayerHospital() then
+    self.world.ui:playAnnouncement(announcements[math.random(1, #announcements)])
+  end
+end
+
 --[[ Show the player the have an epidemic - send a fax
  This happens when the epidemic is chosen to the be
  the "active" epidemic out of all the queued ones.]]
@@ -201,6 +215,7 @@ function Epidemic:revealEpidemic()
   print("Epidemic " .. self.disease.id .. " revealed " ..
     self:countInfectedPatients() .. " patients infected")
   self.revealed = true
+  self:announceStartOfEpidemic()
   self:sendInitialFax()
 end
 
@@ -507,6 +522,7 @@ success/compensation or fail/fines + reputation hit]]
 function Epidemic:sendResultFax()
   print("Sending result fax")
   self.world.ui.bottom_panel:queueMessage("report", self.cover_up_result_fax, nil, 24*20, 1)
+  self:announceEndOfEpidemic()
 end
 
 --[[ Spawns the inspector who will walk to the reception desk. ]]
@@ -514,7 +530,8 @@ function Epidemic:spawnInspector()
   self.world.ui.adviser:say(_A.information.epidemic_health_inspector)
   print("Spawning Inspector")
   local inspector = self.world:newEntity("Inspector", 2)
-  inspector:setType "VIP"
+  inspector:setType "Inspector"
+  self.hospital.announce_inspector = 0
 
   local spawn_point = self.world.spawn_points[math.random(1, #self.world.spawn_points)]
   inspector:setNextAction{name = "spawn", mode = "spawn", point = spawn_point}

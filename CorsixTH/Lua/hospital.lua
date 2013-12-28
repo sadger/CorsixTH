@@ -91,6 +91,7 @@ function Hospital:Hospital(world, name)
   self.seating_warning = 0
   self.num_explosions = 0
   self.announce_vip = 0
+  self.announce_inspector = 0
   self.num_vips = 0 -- used to check if it's the user's first vip
   self.percentage_cured = 0
   self.percentage_killed = 0
@@ -616,6 +617,7 @@ function Hospital:afterLoad(old, new)
 
   if old < 81 then
     self.future_epidemics_pool = {}
+    self.announce_inspector = 0
   end
 
 end
@@ -934,8 +936,8 @@ function Hospital:onEndDay()
     end
   end
 
-  -- check if we still have to anounce VIP visit
-  if self.announce_vip > 0 then
+  -- check if we still have to announce VIP visit
+  if self.announce_vip > 0 or self.announce_inspector == 0 then
     -- check if the VIP is in the building yet
     for i, e in ipairs(self.world.entities) do
       if e.humanoid_class == "VIP" and e.announced == false then
@@ -945,7 +947,12 @@ function Hospital:onEndDay()
           e.announced = true
           self.announce_vip = self.announce_vip - 1
         end
-      end
+      elseif e.humanoid_class == "Inspector" then
+        if self:isInHospital(e.tile_x, e.tile_y) then
+          e:announce()
+          self.announce_inspector = self.announce_inspector + 1
+        end
+      end  
     end
   end
 

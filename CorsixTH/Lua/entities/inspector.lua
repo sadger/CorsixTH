@@ -50,3 +50,6 @@ function Inspector:onDestroy()
   return Humanoid.onDestroy(self)
 end
 
+function Inspector:announce()
+  self.world.ui:playAnnouncement("vip008.wav")
+end
