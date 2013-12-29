@@ -10,6 +10,7 @@ CorsixTH/Makefile
 CorsixTH/Src/config.h
 CorsixTH/cmake_install.cmake
 CorsixTH/config.txt
+CorsixTH/CorsixTH
 /DataRaw
 /Debug
 /LuaJIT
