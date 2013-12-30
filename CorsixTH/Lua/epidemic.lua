@@ -86,10 +86,6 @@ function Epidemic:Epidemic(hospital, contagious_patient)
   -- The health inspector who reveals the result of the epidemic
   self.inspector = nil
 
-  --Move the first patient closer (FOR TESTING ONLY)
-  local x,y = self.hospital:getHeliportSpawnPosition()
-  contagious_patient:setTile(x,y)
-
   self:addContagiousPatient(contagious_patient)
 end
 
