@@ -593,7 +593,7 @@ function Epidemic:createVaccinationActions(patient,nurse)
     print("Vaccination unsuccessful")
     nurse:setCallCompleted()
     patient.reserved_for = nil
-    nurse:queueAction({name="meander"})
+    nurse:setNextAction({name="meander"})
     -- If the patient isn't the current vaccination candidate just
     -- end the call - the nurse may be answering the call when they
     -- were the vaccination candidate
