@@ -83,6 +83,9 @@ function Epidemic:Epidemic(hospital, contagious_patient)
   -- spread_factor% of the time a disease is passed on to a suitable target
   self.spread_factor = self.config.gbv.ContagiousSpreadFactor or 25
 
+  -- The health inspector who reveals the result of the epidemic
+  self.inspector = nil
+
   --Move the first patient closer (FOR TESTING ONLY)
   local x,y = self.hospital:getHeliportSpawnPosition()
   contagious_patient:setTile(x,y)
@@ -99,11 +102,14 @@ function Epidemic:tick()
   if not self.result_determined then
     self:infectOtherPatients()
   end
-  if self.coverup_in_progress and not self.result_determined then
-    self:checkNoInfectedPlayerHasLeft()
-    self:determineNextVaccinationCandidate()
-    self:makeVaccinationCandidateCallForNurse()
-    self:showAppropriateAdviceMessages()
+  if self.coverup_in_progress then
+    if not self.result_determined then
+      self:checkNoInfectedPlayerHasLeft()
+      self:determineNextVaccinationCandidate()
+      self:makeVaccinationCandidateCallForNurse()
+      self:showAppropriateAdviceMessages()
+    end
+    self:tryAnnounceInspector()
   end
   self:checkPatientsForRemoval()
 end
@@ -202,6 +208,24 @@ function Epidemic:revealEpidemic()
     self:countInfectedPatients() .. " patients infected")
   self.revealed = true
   self:sendInitialFax()
+  self:announceStartOfEpidemic()
+end
+
+--[[ Plays the announcement for the start of the epidemic ]]
+function Epidemic:announceStartOfEpidemic()
+  local announcements = {"EPID001.wav", "EPID002.wav", "EPID003.wav", "EPID004.wav"}
+  if self.hospital:isPlayerHospital() then
+    self.world.ui:playAnnouncement(announcements[math.random(1, #announcements)])
+  end
+end
+
+
+--[[ Plays the announcement for the end of the epidemic ]]
+function Epidemic:announceEndOfEpidemic()
+  local announcements = {"EPID005.wav", "EPID006.wav", "EPID007.wav", "EPID008.wav"}
+  if self.hospital:isPlayerHospital() then
+    self.world.ui:playAnnouncement(announcements[math.random(1, #announcements)])
+  end
 end
 
 --[[ Checks for conditions that could end the epidemic earlier than
@@ -507,6 +531,7 @@ success/compensation or fail/fines + reputation hit]]
 function Epidemic:sendResultFax()
   print("Sending result fax")
   self.world.ui.bottom_panel:queueMessage("report", self.cover_up_result_fax, nil, 24*20, 1)
+  self:announceEndOfEpidemic()
 end
 
 --[[ Spawns the inspector who will walk to the reception desk. ]]
@@ -514,6 +539,7 @@ function Epidemic:spawnInspector()
   self.world.ui.adviser:say(_A.information.epidemic_health_inspector)
   print("Spawning Inspector")
   local inspector = self.world:newEntity("Inspector", 2)
+  self.inspector = inspector
   inspector:setType "Inspector"
 
   local spawn_point = self.world.spawn_points[math.random(1, #self.world.spawn_points)]
@@ -708,3 +734,11 @@ function Epidemic:hasNoInfectedPatients()
   return #self.infected_patients == 0
 end
 
+function Epidemic:tryAnnounceInspector()
+  local inspector = self.inspector
+  if inspector and not inspector.has_been_announced and
+      self.hospital:isInHospital(inspector.tile_x, inspector.tile_y) then
+    inspector:announce()
+    inspector.has_been_announced = true
+  end
+end
