@@ -708,16 +708,16 @@ end
   conditions of the epidemic.]]
 function Epidemic:showAppropriateAdviceMessages()
   if self.countdown_intervals then
-    if not self.has_said_hurry_up and
+    if not self.has_said_hurry_up and self:countInfectedPatients() > 0 and
       -- If only 1/4 of the countdown_intervals remaining on the timer
-      self.timer.open_timer == math.floor(self.countdown_intervals * 1/4) then
+        self.timer.open_timer == math.floor(self.countdown_intervals * 1/4) then
       self.world.ui.adviser:say(_A.epidemic.hurry_up)
       self.has_said_hurry_up = true
       -- Wait until at least 1/4 of the countdown_intervals has expired before giving
       -- this warning so it doesn't happen straight away
     elseif self.timer.open_timer <= math.floor(self.countdown_intervals * 3/4)
-      and not self.has_said_serious
-      and self:countInfectedPatients() > 10 then
+        and not self.has_said_serious
+        and self:countInfectedPatients() > 10 then
       self.world.ui.adviser:say(_A.epidemic.serious_warning)
       self.has_said_serious = true
     end
