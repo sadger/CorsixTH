@@ -408,7 +408,7 @@ function Epidemic:finishCoverUp()
   self.result_determined = true
 
   local watch = self.world.ui:getWindow(UIWatch)
-  if watch then
+  if watch and watch.count_type == "epidemic" then
     watch:close()
   end
 
