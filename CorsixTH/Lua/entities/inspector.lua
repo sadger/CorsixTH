@@ -24,6 +24,7 @@ class "Inspector" (Humanoid)
 function Inspector:Inspector(...)
   self:Humanoid(...)
   self.hover_cursor = TheApp.gfx:loadMainCursor("default")
+  self.has_been_announced = false
 end
 
 --[[ Labels the inspector as the "Health Inspector" ]]
@@ -50,3 +51,6 @@ function Inspector:onDestroy()
   return Humanoid.onDestroy(self)
 end
 
+function Inspector:announce()
+  self.world.ui:playAnnouncement("vip008.wav")
+end

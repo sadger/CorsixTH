@@ -1251,11 +1251,33 @@ end
  a random disease and adds the epidemic to the pool of future epidemics
  does NOT guarantee the created epidemic will be the next revealed epidemic.]]
 function Hospital:createEpidemic()
-  local patient = self.world:spawnPatient(self)
+  --[[ Gets the avaliable non-visual disease in the current world
+    @return non_visuals (table) table of available non-visual diseases]]
+  local function get_available_non_visual_diseases()
+    local non_visuals = {}
+    for _, disease in ipairs(self.world.available_diseases) do
+      if disease.non_visuals_id then
+        non_visuals[#non_visuals + 1] = disease
+      end
+    end
+    return non_visuals
+  end
 
   if not self.epidemic then
-    self.epidemic = Epidemic(self,patient)
-    print("Epidemic created with disease " .. patient.disease.id)
+    if self:hasStaffedDesk() then
+      --Move the first patient closer (FOR TESTING ONLY)
+      local patient = self.world:newEntity("Patient", 2)
+      local non_visual_diseases = get_available_non_visual_diseases()
+      local disease = non_visual_diseases[math.random(1,#non_visual_diseases)]
+      patient:setDisease(disease)
+      local x,y = self:getHeliportSpawnPosition()
+      patient:setTile(x,y)
+      patient:setHospital(self)
+      self.epidemic = Epidemic(self,patient)
+      print("Epidemic created with disease " .. patient.disease.id)
+    else
+      print("Cannot create epidemic - no staffed reception desk")
+    end
   else
     print("Cannot create new epidemic, one already in progress")
   end
