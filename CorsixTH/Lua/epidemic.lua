@@ -326,7 +326,7 @@ end
 --@return fine (Integer) the fine amount ]]
 function Epidemic:calculateInfectedFine(infected_count)
   local fine_per_infected = self.config.gbv.EpidemicFine or 2000
-  return math.max(2000,math.min(infected_count * fine_per_infected, 20000))
+  return math.max(2000,infected_count * fine_per_infected)
 end
 
 
