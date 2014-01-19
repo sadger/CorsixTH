@@ -69,7 +69,7 @@ function UIWatch:onCountdownEnd()
     self.ui.hospital:resolveEmergency()
   elseif self.count_type == "epidemic" then
     local epidemic = self.hospital.epidemic
-    if epidemic then
+    if epidemic and not epidemic.inspector then
       epidemic:spawnInspector()
       if epidemic.vaccination_mode_active then
         epidemic:toggleVaccinationMode()

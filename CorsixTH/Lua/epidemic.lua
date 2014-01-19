@@ -241,9 +241,11 @@ function Epidemic:checkNoInfectedPlayerHasLeft()
     return false
   end
 
-  if infected_patient_left() then
+  if infected_patient_left() and not self.result_determined then
     self.result_determined = true
-    self:spawnInspector()
+    if not self.inspector then
+      self:spawnInspector()
+    end
     self:finishCoverUp()
   end
 end
