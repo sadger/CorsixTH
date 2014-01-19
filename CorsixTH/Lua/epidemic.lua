@@ -67,10 +67,6 @@ function Epidemic:Epidemic(hospital, contagious_patient)
   -- is clicked - used to determine what the cursor should look like
   self.vaccination_mode_active = false
 
-  -- During a cover up the infected patient who is marked for
-  -- vaccination that has been chosen to be vaccinated
-  self.vaccination_candidate = nil
-
   -- For Cheat - Show the contagious icon even before the epidemic is revealed?
   self.cheat_always_show_mood = false
 
@@ -101,8 +97,7 @@ function Epidemic:tick()
   if self.coverup_in_progress then
     if not self.result_determined then
       self:checkNoInfectedPlayerHasLeft()
-      self:determineNextVaccinationCandidate()
-      self:makeVaccinationCandidateCallForNurse()
+      self:markedPatientsCallForVaccination()
       self:showAppropriateAdviceMessages()
     end
     self:tryAnnounceInspector()
@@ -280,7 +275,7 @@ end
 
 --[[ Show a patient is able to be vaccinated, this is shown to the player by
  changing the icon, once a player has been marked for vaccination they may
- possibly become the vaccination candidate. Marking is done by clicking
+ possibly become a vaccination candidate. Marking is done by clicking
  the player and can only happen during a cover up. ]]
 function Epidemic:markForVaccination(patient)
   if patient.infected and not patient.vaccinated
@@ -556,50 +551,15 @@ local function is_static(patient)
   patient_action.object.object_type.id == "bench")
 end
 
---[[ Determine if the current vaccination candidate (if exists) should
-  remain the vaccination candidate and deselect if not.
-  Then determine which infected patient will be chosen to be vaccinated
-  next, hence becoming the new vaccination candidate.]]
-function Epidemic:determineNextVaccinationCandidate()
-    local function violates_candidate_criteria(patient)
-      -- A vaccination candidate shouldn't be in a room,
-      -- already vaccinated or walking anywhere
-      return patient:getRoom() or patient.vaccinated
-      or patient.going_home or not is_static(patient)
+--[[ During a cover up every patient marked for vaccination (clicked)
+ creates a call to be vaccinated by a nurse - patients must also be static
+ (seated or standing queuing) ]]
+function Epidemic:markedPatientsCallForVaccination()
+  for _, infected_patient in ipairs(self.infected_patients) do
+    if infected_patient.marked_for_vaccination and
+        not infected_patient.reserved_for and is_static(infected_patient) then
+      local call = self.world.dispatcher:callNurseForVaccination(infected_patient)
     end
-
-    local vacc_candidate = self.vaccination_candidate
-    if vacc_candidate then
-      if violates_candidate_criteria(vacc_candidate) then
-        --Restore normal epidemic mood icon
-        vacc_candidate:setMood("epidemy3","deactivate")
-        local restore_mood = vacc_candidate.vaccinated and "epidemy1" or "epidemy2"
-        self.vaccination_candidate:setMood(restore_mood,"activate")
-        self.vaccination_candidate = nil
-      end
-    else
-      -- Choose a new vaccination_candidate
-      for i, infected_patient in ipairs(self.infected_patients) do
-        if infected_patient.marked_for_vaccination and
-          not violates_candidate_criteria(infected_patient) then
-          -- Give selected patient the cursor with the arrow
-          infected_patient:setMood("epidemy2","deactivate")
-          infected_patient:setMood("epidemy3","activate")
-          self.vaccination_candidate = infected_patient
-          -- We've found one - no need to search for another
-          break
-        end
-      end
-    end
-end
-
---[[ When someone is suitable for vaccination we create a call
-  calling the nurse to come vaccinate.]]
-function Epidemic:makeVaccinationCandidateCallForNurse()
-  if self.vaccination_candidate and not self.vaccination_candidate.reserved_for
-      and is_static(self.vaccination_candidate) then
-    local call = self.world.
-    dispatcher:callNurseForVaccination(self.vaccination_candidate)
   end
 end
 
@@ -614,30 +574,25 @@ function Epidemic:createVaccinationActions(patient,nurse)
   local x,y = self:getBestVaccinationTile(nurse,patient)
   -- If unreachable patient keep the call open for now
   if not x or not y then
-    print("Vaccination unsuccessful")
+    print("Vaccination unsuccessful - unreachable")
     nurse:setCallCompleted()
     patient.reserved_for = nil
     nurse:setNextAction({name="meander"})
-    -- If the patient isn't the current vaccination candidate just
-    -- end the call - the nurse may be answering the call when they
-    -- were the vaccination candidate
-  elseif not (patient == self.vaccination_candidate) then
-    print("Not vacc candidate")
-    CallsDispatcher.queueCallCheckpointAction(nurse)
-    nurse:queueAction{name = "answer_call"}
-    nurse:finishAction()
-    patient.reserved_for = nil
-    -- Otherwise send the nurse to vaccinate
+    patient:toggleVaccinationCandidateStatus()
   else
+  -- Give selected patient the cursor with the arrow once they are next
+  -- in line for vaccination i.e. call assigned
+    patient:toggleVaccinationCandidateStatus()
     local vaccination_fee = self.config.gbv.VacCost or 50
     nurse:setNextAction({name="walk", x=x, y=y,
                         must_happen=true,
                         walking_to_vaccinate = true})
-   nurse:queueAction({name="vaccinate",
+    nurse:queueAction({name="vaccinate",
                       vaccination_fee=vaccination_fee,
                       patient=patient, must_happen=true})
   end
 end
+
 
 --[[Find the best tile to stand on to vaccinate a patient
  @param nurse (Nurse) the nurse performing the vaccination

@@ -39,6 +39,8 @@ function Patient:Patient(...)
   -- Has the patient been sent to the wrong room and needs redirecting
   self.needs_redirecting = false
   self.attempted_to_infect= false
+  -- Is the patient about to be vaccinated?
+  self.vaccination_candidate = false
 end
 
 function Patient:onClick(ui, button)
@@ -1022,6 +1024,22 @@ end
 function Patient:hasVisualDisease()
   -- Only patients with visual diseases have this field
   return (self.disease.visuals_id ~= nil)
+end
+
+--[[ Toggle the vaccination candidate status of the patient and
+ the appropriate icon to show status - arrow for candidate, spraycan
+ for just marked
+ N.B This is kept out of the epidemics class in the case we need to change
+ the icons after the epidemic has offically ended ]]
+function Patient:toggleVaccinationCandidateStatus()
+  if self.vaccination_candidate then
+    self:setMood("epidemy3","deactivate")
+    self:setMood("epidemy2","activate")
+  else
+   self:setMood("epidemy2","deactivate")
+   self:setMood("epidemy3","activate")
+  end
+  self.vaccination_candidate = not self.vaccination_candidate
 end
 
 function Patient:afterLoad(old, new)

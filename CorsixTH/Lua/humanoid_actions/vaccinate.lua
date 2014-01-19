@@ -84,7 +84,9 @@ local function vaccinate(action, nurse)
       patient:updateDynamicInfo()
       print("Vaccination successful")
     else
-      print("Vaccination unsuccessful")
+      print("Vaccination unsuccessful - not in adjacent square to patient")
+      patient:setMood("epidemy3","deactivate")
+      patient:setMood("epidemy2","activate")
       -- Drop it they may not even be the vacc candidate anymore
       CallsDispatcher.queueCallCheckpointAction(nurse)
       nurse:queueAction{name = "answer_call"}
@@ -101,7 +103,8 @@ local function vaccinate(action, nurse)
                        on_interrupt=interrupt_vaccination,
                        must_happen=true})
   else
-    print("Vaccination unsuccessful")
+    print("Vaccination unsuccessful - not in adjacent square to patient")
+    patient:toggleVaccinationCandidateStatus()
     local patient_direction = patient.last_move_direction
     nurse:setCallCompleted()
     patient.reserved_for = nil
