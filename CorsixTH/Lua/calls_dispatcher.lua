@@ -244,9 +244,19 @@ end
   the vaccination actions ]]
 function CallsDispatcher.sendNurseToVaccinate(patient, nurse)
   assert(nurse.humanoid_class == "Nurse")
+
   print("Doing vaccination actions")
   local epidemic = nurse.hospital.epidemic
-  epidemic:createVaccinationActions(patient,nurse)
+  if epidemic then
+    epidemic:createVaccinationActions(patient,nurse)
+  else
+    -- The epidemic may have ended before the call can be executed
+    -- so just finish the call immediately
+    CallsDispatcher.queueCallCheckpointAction(nurse)
+    nurse:queueAction{name = "answer_call"}
+    nurse:finishAction()
+    patient.reserved_for = nil
+  end
 end
 
 
