@@ -130,8 +130,9 @@ function Epidemic:infectOtherPatients()
      if (not other.infected) and (not other.cured) and (not other.vaccinated)
        and (not patient.cured) and (not patient.vaccinated) and (not other.is_emergency) and
        ((patient.disease == other.disease) or
-       (not patient:hasVisualDisease() and not other:hasVisualDisease() and not other.diagnosed))
-       and not other.attempted_to_infect
+       (not patient:hasVisualDisease() and not other:hasVisualDisease() and not other.diagnosed)) and
+       -- If alreagy attempted to infect and failed this patient cannot be infected
+       not other.attempted_to_infect
        -- Both patients are outside (nil rooms) or in the same room - don't infect through walls.
        and (patient:getRoom() == other:getRoom()) then
        can_infect=true
@@ -152,6 +153,15 @@ function Epidemic:infectOtherPatients()
     end
   end
 
+
+  -- Scale the chance of spreading the disease infecting spread_factor%
+  -- of patients results in too large an epidemic typically so infect
+  -- spread_factor/spread_scale_factor patients.
+  -- This scale factor is purely for balance purposes, the larger the
+  -- value the less spreading the epidemics will be, all relative to spread_factor.
+  -- Must be > 0.
+  local spread_scale_factor = 2
+
   -- Go through all infected patients making the check if they can infect
   -- and making any patient they can infect contagious too.
   local entity_map = self.world.entity_map
@@ -163,9 +173,9 @@ function Epidemic:infectOtherPatients()
         if canInfectOther(infected_patient,patient) then
           patient.attempted_to_infect = true
           self.attempted_infections = self.attempted_infections + 1
-     --   print("Infections/Attempted :" .. self.total_infections .. "/" .. self.attempted_infections)
-          if self.total_infections == 0 or
-              (self.total_infections/self.attempted_infections) < (self.spread_factor/100) then
+          print("Infections/Attempted :" .. self.total_infections .. "/" .. self.attempted_infections)
+          if (self.total_infections/self.attempted_infections) <
+              (self.spread_factor/100) / spread_scale_factor then
             infect_other(infected_patient,patient)
           end
         end
