@@ -51,13 +51,13 @@ function Patient:onClick(ui, button)
       self:message_callback()
     else
       local epidemic = self.hospital and self.hospital.epidemic
-      if epidemic and epidemic.coverup_in_progress and
-        self.infected and not self.marked_for_vaccination then
-        epidemic:markForVaccination(self)
-      end
       if not epidemic or
-        (epidemic and not epidemic.vaccination_mode_active) then
+          (self.marked_for_vaccination and not epidemic.vaccination_mode_active) then
         ui:addWindow(UIPatient(ui, self))
+      end
+      if epidemic and epidemic.coverup_in_progress and
+          self.infected and not self.marked_for_vaccination then
+        epidemic:markForVaccination(self)
       end
     end
   elseif self.user_of then
