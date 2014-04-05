@@ -56,7 +56,9 @@ function Patient:onClick(ui, button)
         ui:addWindow(UIPatient(ui, self))
       end
       if epidemic and epidemic.coverup_in_progress and
-          self.infected and not self.marked_for_vaccination then
+          self.infected and not self.marked_for_vaccination and
+          -- Prevent further vaccinations when the timer ends
+          not epidemic.timer.closed then
         epidemic:markForVaccination(self)
       end
     end

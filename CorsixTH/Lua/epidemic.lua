@@ -414,10 +414,7 @@ later (@see applyOutcome) ]]
 function Epidemic:finishCoverUp()
   self.result_determined = true
 
-  local watch = self.world.ui:getWindow(UIWatch)
-  if watch and watch.count_type == "epidemic" then
-    watch:close()
-  end
+  timer:close()
 
   -- Turn vaccination mode off
   if self.vaccination_mode_active then
