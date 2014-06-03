@@ -414,7 +414,7 @@ later (@see applyOutcome) ]]
 function Epidemic:finishCoverUp()
   self.result_determined = true
 
-  timer:close()
+  self.timer:close()
 
   -- Turn vaccination mode off
   if self.vaccination_mode_active then
