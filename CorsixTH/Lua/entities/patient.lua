@@ -50,11 +50,15 @@ function Patient:onClick(ui, button)
     if self.message_callback then
       self:message_callback()
     else
-      local epidemic = self.hospital and self.hospital.epidemic
+      local hospital = self.hospital or self.world:getLocalPlayerHospital()
+      local epidemic = hospital and hospital.epidemic
       if not epidemic or
-          (self.marked_for_vaccination and not epidemic.vaccination_mode_active) then
+          (not epidemic.coverup_in_progress
+          or (not self.infected or self.marked_for_vaccination)
+          and not epidemic.vaccination_mode_active) then
         ui:addWindow(UIPatient(ui, self))
       end
+
       if epidemic and epidemic.coverup_in_progress and
           self.infected and not self.marked_for_vaccination and
           -- Prevent further vaccinations when the timer ends
