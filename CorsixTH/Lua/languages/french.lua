@@ -547,9 +547,9 @@ adviser = {
     researcher_needs_desk_3 = "Un chercheur a toujours besoin d'un bureau.",
     nurse_needs_desk_1 = "Chaque infirmière a besoin de son propre bureau.",
     nurse_needs_desk_2 = "Votre infirmière est heureuse d'avoir une pause. Si vous comptez y faire travailler plusieurs personnes en même temps, vous devez leur construire un bureau à chacune.",
-    low_prices = "Certains patients pensent que %s est bon marché. Ils en sont contents, mais on perd de l'argent !",
-    high_prices = "Certains patients pensent que %s est cher. Ils râlent mais au moins vous faites de l'argent !",
-    fair_prices = "Certains patients pensent que %s a un prix normal. Bien bien.",
+    low_prices = "Vous facturez trop peu pour %s. Ça va amener des gens dans votre hôpital, mais vous ne ferez pas beaucoup de profit sur chacun d'eux.",
+    high_prices = "Votre tarif pour %s est trop élevé. Ça va générer plus de profit sur le court-terme, mais à la longue les gens vont fuir.",
+    fair_prices = "Le prix pour %s semble juste et équilibré.",
     patient_not_paying = "Un patient est parti sans payer pour %s parce que c'est trop cher !",
   },
   cheats = {
