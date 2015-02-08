@@ -28,12 +28,21 @@ object.ticks = false
 object.corridor_object = 6
 object.build_preview_animation = 934
 
+local anims = TheApp.anims
+
+object.plant_count = 0
+
+local n,e,s,w = anims:getAnimations(64, "plant_healthy")
+
 object.idle_animations = {
-  north = 1950,
-  south = 1950,
-  east = 1950,
-  west = 1950,
+  north = n,
+  south = n,
+  east = n,
+  west = n,
 }
+
+print("north:", object.idle_animations["north"])
+
 object.usage_animations = {
   north = {
     begin_use = { ["Handyman"] = {1972, object_visible = true} },
@@ -92,7 +101,8 @@ function Plant:Plant(world, object_type, x, y, direction, etc)
   -- handyman uses the correct usage animation when appropriate.
   self:Object(world, object_type, x, y, direction, etc)
   self.current_state = 0
-  self.base_frame = self.th:getFrame()
+  self.base_frame = anims:getFirstFrame(object.idle_animations["north"]) --self.th:getFrame()
+  print("north:", object.idle_animations["north"])
   self.days_left = days_between_states
   self.unreachable = false
   self.unreachable_counter = days_unreachable
@@ -111,7 +121,7 @@ function Plant:setNextState(restoring)
   end
 
   self.current_state = self.current_state + change
-  self.th:setFrame(self.base_frame + self.current_state)
+  self.th:setFrame(self.base_frame)
 end
 
 local plant_restoring; plant_restoring = permanent"plant_restoring"( function(plant)
@@ -335,7 +345,7 @@ function Plant:onClick(ui, button)
   if button == "right" then
     self.unreachable = false
     self.picked_up = true
-    self.current_frame = self.base_frame + self.current_state
+    self.current_frame = self.base_frame
   end
   Object.onClick(self, ui, button)
 end
