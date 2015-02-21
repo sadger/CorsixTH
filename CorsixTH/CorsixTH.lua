@@ -9,6 +9,9 @@ if (package and package.preload and package.preload.TH) == nil then
   error "This file must be invoked by the CorsixTH executable"
 end
 
+
+
+
 -- Parse script parameters:
 local run_debugger = false
 for _, arg in ipairs({...}) do
@@ -120,8 +123,15 @@ require = destrict(require)
 -- Load the class system (required for App)
 dofile "class"
 
+
 -- Load the main App class
 dofile "app"
+
+dofile "argument_handler"
+
+local parsedCmdLine = ArgumentHandler():getParsedCommandLine(...)
+for k, v in pairs(parsedCmdLine) do print(k, v) end
+--for k, v in pairs(parsedCmdLine["connect_debugger"]) do print(k, v) end
 
 -- Create an instance of the App class and transfer control to it
 strict_declare_global "TheApp"
@@ -133,8 +143,9 @@ TheApp:setCommandLine(
   -- if the user gave one of the above, that will be used instead.
   ...
 )
-assert(TheApp:init())
-return TheApp:run()
+
+--assert(TheApp:init())
+--return TheApp:run()
 
 --[[!file
 ! Application bootstrap code
