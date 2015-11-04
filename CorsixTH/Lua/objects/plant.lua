@@ -28,25 +28,7 @@ object.ticks = false
 object.corridor_object = 6
 object.build_preview_animation = 934
 
-local anims = TheApp.anims
-
-object.directions = {"north","east","south","west"}
-object.plant_count = 1
-
-local n, e, s, w = anims:getAnimations(64, "plant_new")
-
-print(n)
-print(e)
-print(s)
-print(w)
-
-object.idle_animations = {
-  north = n,
-  east = e,
-  south = s,
-  west = w
-}
-
+object.idle_animations = AnimationLoader.getIdleAnimations("plant_new", 1950)
 
 object.usage_animations = {
   north = {
@@ -102,18 +84,11 @@ class "Plant" (Object)
 local Plant = _G["Plant"]
 
 function Plant:Plant(world, object_type, x, y, direction, etc)
-  local dir = object.directions[object.plant_count]
-  print(dir)
-  if object.plant_count == 4 then
-    object.plant_count = 1
-  else
-    object.plant_count = object.plant_count + 1
-  end
   -- It doesn't matter which direction the plant is facing. It will be rotated so that an approaching
   -- handyman uses the correct usage animation when appropriate.
-  self:Object(world, object_type, x, y, dis, etc)
+  self:Object(world, object_type, x, y, direction, etc)
   self.current_state = 0
-  self.base_frame = anims:getFirstFrame(object.idle_animations[dir]) --self.th:getFrame()
+  self.base_frame = self.th:getFrame()
   self.days_left = days_between_states
   self.unreachable = false
   self.unreachable_counter = days_unreachable
@@ -354,15 +329,11 @@ end
 --! The plant needs to retain its animation and reset its unreachable flag when being moved
 function Plant:onClick(ui, button)
   if button == "right" then
-    if self.current_state > 0 then
-      self:setNextState(true)
-    end
-  elseif button == "left" then
-    if self.current_state < 4 then
-      self:setNextState(false)
-    end
+    self.unreachable = false
+    self.picked_up = true
+    self.current_frame = self.base_frame + self.current_state
   end
-  print(self.current_state)
+  Object.onClick(self, ui, button)
 end
 
 function Plant:isPleasing()

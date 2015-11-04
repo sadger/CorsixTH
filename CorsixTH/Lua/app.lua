@@ -248,6 +248,7 @@ function App:init()
     dofile "entities/humanoid"
     dofile "entities/object"
     dofile "entities/machine"
+    dofile "animation_loader"
 
     local objects = self:loadLuaFolder"objects"
     self.objects = self:loadLuaFolder("objects/machines", nil, objects)
